@@ -1,0 +1,45 @@
+Step-by-Step Implementation Guide for Your Unsupervised Crop Disease Detection App
+As a solo developer, this guide focuses on a lean, practical approach to building your Python-based backend with FastAPI, OpenCV for computer vision (CV), PyTorch for unsupervised machine learning (ML via autoencoder), and a file system with JSON metadata for image storage. The app will handle image uploads, CV preprocessing, anomaly detection (indirect labeling as "healthy" or "diseased"), saving images for iterative improvement, and global API access. We'll follow the SDLC phases but emphasize implementation steps, assuming you've gathered resources (e.g., PlantVillage dataset, FastAPI docs). Use VS Code as your IDE, GitHub for version control, and a local environment (Python 3.9+). No external APIs are needed for the MVP—your FastAPI handles everything.
+Phase 1: Setup and Environment Preparation (1-2 hours)
+
+Install Python and Dependencies: Download Python 3.9+ from python.org if not installed. Create a virtual environment (python -m venv env, activate it). Install libraries: pip install fastapi uvicorn opencv-python torch torchvision numpy pillow python-multipart. This sets up FastAPI for the API, OpenCV for CV, PyTorch for ML, and helpers for images.
+Create Project Structure: Make a root folder (e.g., crop-disease-app). Inside, add files: main.py (FastAPI app), model.pth (pre-trained autoencoder, initially empty), symptoms.json (e.g., {"healthy": {"color": "green"}, "powdery_mildew": {"color": "white", "threshold": 100}}), and folders dataset/healthy/ and dataset/diseased/ for storage.
+Download Initial Dataset: From Kaggle, download a small subset of PlantVillage (50-100 healthy crop images, e.g., tomato leaves). Place them in dataset/healthy/ for initial training.
+Initialize Git: Run git init, add a .gitignore (ignore env/, *.pth), and commit your structure.
+
+Phase 2: Design and Model Building (2-4 hours)
+
+Define the Autoencoder Model: In main.py, create a PyTorch class for the autoencoder (encoder: conv layers to compress images, decoder: transpose conv to reconstruct). Use simple architecture (e.g., 3 input channels, 32-64 filters) for anomaly detection—train on healthy images to learn "normal" patterns.
+Plan CV Pipeline: Outline OpenCV steps: read image, resize to 128x128, convert to HSV, enhance colors based on symptoms.json (e.g., boost green for healthy), segment leaf using thresholding, convert to tensor for PyTorch.
+Design Detection Logic: Combine CV and ML: Preprocess with OpenCV, pass to autoencoder, calculate MSE reconstruction error (high error = "diseased"). Use OpenCV to generate anomaly heatmap (absolute difference) and check histograms against JSON symptoms for refined labels.
+Plan Storage and Retraining: Images save to dataset/ subfolders based on label. Metadata (filename, label, error, timestamp) appends to metadata.json. Add a retrain function to load dataset images and update the model.
+
+Phase 3: Implement the Backend API (3-5 hours)
+
+Set Up FastAPI App: In main.py, import FastAPI and create the app. Load symptoms.json and the model (model.load_state_dict(torch.load('model.pth'))).
+Implement CV Preprocessing Function: Write a function to handle image bytes (from uploads): decode with OpenCV, resize/segment/enhance, convert to PyTorch tensor.
+Implement Detection Function: Write a function for inference: Preprocess image, run through autoencoder, compute error, generate heatmap with OpenCV, match symptoms via histogram, return label/error/map as JSON/bytes.
+Create API Endpoints: Add @app.post("/detect"): Accept UploadFile, process with detection function, return JSON {"label": ..., "error": ..., "anomaly_map": base64-encoded bytes}. Add @app.post("/retrain"): Trigger retraining on dataset/ images, save updated model.pth.
+Add Saving Logic: In /detect, optionally save image to dataset/ based on label, append metadata to metadata.json using json.dump.
+Handle Retraining: Write a function to load images from dataset/healthy/ (use os.listdir), create a DataLoader, train autoencoder for 10-20 epochs on healthy images, save model.
+
+Phase 4: Initial Training and Testing (2-3 hours)
+
+Train the Model Initially: Write a script (or endpoint) to train the autoencoder on initial healthy images: Use DataLoader, MSELoss, Adam optimizer, 20 epochs. Save as model.pth.
+Test Locally: Run uvicorn main:app --reload. Use Postman to test /detect: Upload a test image (e.g., from PlantVillage diseased set), check JSON response (label, error, map). Verify saving to dataset/ and metadata update.
+Validate CV/ML: Manually check 5-10 images: Ensure CV segments leaves correctly, ML flags high errors on diseased, and JSON symptoms refine labels. Adjust thresholds (e.g., error > 0.05 = diseased).
+Test Retraining: Upload/save a few images, call /retrain, re-test to see improved accuracy (e.g., lower average error).
+
+Phase 5: Deployment and Global Access (1-2 hours)
+
+Prepare for Deployment: Add requirements.txt (pip freeze > requirements.txt), ensure main.py is self-contained (load model/symptoms at startup).
+Deploy to Cloud: Sign up for Render (free tier), create a web service, link your GitHub repo, set command uvicorn main:app --host 0.0.0.0 --port $PORT. Deploy—your API will be live at a URL (e.g., https://your-app.onrender.com).
+Add Basic Security: In FastAPI, add API keys or basic auth to endpoints (e.g., via Depends) to restrict access if needed.
+Test Deployed API: Use Postman or a simple frontend (e.g., HTML form) to call the deployed /detect from different devices/locations.
+
+Phase 6: Maintenance and Iteration (Ongoing, 30-60 min per update)
+
+Monitor Performance: After deployment, test with new images periodically. Use Sentry (free tier) to track errors (e.g., API crashes on large images).
+Iterate on Model: As images save via API, manually trigger /retrain (or automate via cron if on cloud). Check improvements (e.g., better anomaly detection).
+Refine Features: Add optional endpoints (e.g., /metadata to view JSON) or scale storage if needed (e.g., integrate AWS S3 later).
+Backup and Version: Commit changes to GitHub regularly; back up model.pth and dataset/.
