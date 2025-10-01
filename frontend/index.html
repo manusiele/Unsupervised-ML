@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Plant Disease Analyzer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2ecc71;
+      --secondary-color: #27ae60;
+      --accent-color: #3498db;
+      --danger-color: #e74c3c;
+      --warning-color: #f39c12;
+      --dark-bg: #2c3e50;
+      --light-bg: #ecf0f1;
+    }
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px 0;
+    }
+    .main-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .header p {
+      margin: 10px 0 0 0;
+      opacity: 0.9;
+    }
+    .content-wrapper {
+      padding: 30px;
+    }
+    .section-card {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      border: 1px solid #e0e0e0;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--dark-bg);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title i {
+      color: var(--primary-color);
+    }
+    #media-container {
+      width: 100%;
+      height: 400px;
+      border: 3px dashed #ddd;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 15px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    #media-container:hover {
+      border-color: var(--primary-color);
+    }
+    #video, #captured-image {
+      max-width: 100%;
+      max-height: 100%;
+      display: none;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .placeholder-content {
+      text-align: center;
+      color: #95a5a6;
+    }
+    .placeholder-content i {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+    .btn-custom {
+      padding: 12px 25px;
+      border-radius: 25px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .btn-success-custom {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+    }
+    .btn-primary-custom {
+      background: linear-gradient(135deg, var(--accent-color), #2980b9);
+      color: white;
+    }
+    .btn-warning-custom {
+      background: linear-gradient(135deg, var(--warning-color), #e67e22);
+      color: white;
+    }
+    .btn-analyze {
+      background: linear-gradient(135deg, #8e44ad, #c0392b);
+      color: white;
+      width: 100%;
+      padding: 15px;
+      font-size: 1.1rem;
+    }
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+    }
+    .symptom-checkbox {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+    }
+    .symptom-checkbox:hover {
+      background: #e9ecef;
+    }
+    .symptom-checkbox input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .result-box {
+      padding: 20px;
+      border-radius: 12px;
+      min-height: 100px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .result-box.success {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      border: 2px solid #28a745;
+    }
+    .result-box.danger {
+      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+      border: 2px solid #dc3545;
+    }
+    .symptom-badge {
+      display: inline-block;
+      padding: 8px 15px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 20px;
+      margin: 5px;
+      font-size: 0.9rem;
+    }
+    .progress-bar-custom {
+      height: 30px;
+      border-radius: 15px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      color: white;
+    }
+    .stat-card h3 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .stat-card p {
+      margin: 5px 0 0 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .info-tip {
+      background: #e3f2fd;
+      border-left: 4px solid var(--accent-color);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    .disease-info {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      border: 1px solid #e0e0e0;
+    }
+    @media (max-width: 768px) {
+      .content-wrapper { padding: 20px; }
+      .btn-custom { width: 100%; margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="header">
+      <h1><i class="fas fa-leaf"></i> Enhanced Plant Disease Analyzer</h1>
+      <p>AI-Powered Plant Health Diagnostic System</p>
+    </div>
+    <div class="content-wrapper">
+      <!-- Plant Information Section -->
+      <div class="section-card">
+        <div class="section-title"><i class="fas fa-seedling"></i> Plant Information</div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Plant Type *</label>
+            <select id="plant-type" class="form-select">
+              <option value="">Select plant type...</option>
+              <option value="tomato">Tomato</option>
+              <option value="rose">Rose</option>
+              <option value="cucumber">Cucumber</option>
+              <option value="potato">Potato</option>
+              <option value="pepper">Pepper</option>
+              <option value="lettuce">Lettuce</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Plant Age (optional)</label>
+            <input type="text" id="plant-age" class="form-control" placeholder="e.g., 3 weeks, 2 months">
+          </div>
+        </div>
+      </div>
+
+      <!-- Observed Symptoms Section -->
+      <div class="section-card">
+        <div class="section-title"><i class="fas fa-clipboard-check"></i> Observed Symptoms</div>
+        <p class="text-muted mb-3">Select all symptoms you observe on your plant:</p>
+        <div class="row" id="symptom-checkboxes">
+          <!-- Symptoms will be populated from symptoms.json -->
+        </div>
+        <div class="mt-3">
+          <label class="form-label fw-bold">Additional Notes</label>
+          <textarea id="additional-notes" class="form-control" rows="3" placeholder="Describe any other symptoms or observations..."></textarea>
+        </div>
+      </div>
+
+      <!-- Image Capture Section -->
+      <div class="section-card">
+        <div class="section-title"><i class="fas fa-camera"></i> Image Capture</div>
+        <div id="media-container">
+          <video id="video" autoplay playsinline></video>
+          <img id="captured-image" alt="Captured Plant Image">
+          <div id="placeholder-text" class="placeholder-content">
+            <i class="fas fa-image"></i>
+            <p>Camera or Image Preview</p>
+          </div>
+        </div>
+        <div class="text-center mt-3 d-flex flex-wrap gap-2 justify-content-center">
+          <button id="open-camera-btn" class="btn-custom btn-success-custom">
+            <i class="fas fa-video"></i> Open Camera
+          </button>
+          <button id="capture-btn" class="btn-custom btn-warning-custom" disabled>
+            <i class="fas fa-camera"></i> Capture
+          </button>
+          <label for="file-input" class="btn-custom btn-primary-custom m-0">
+            <i class="fas fa-upload"></i> Upload Image
+          </label>
+          <input type="file" id="file-input" accept="image/*" style="display: none;">
+        </div>
+      </div>
+
+      <!-- Analysis Button -->
+      <button id="analyze-btn" class="btn-custom btn-analyze" disabled>
+        <i class="fas fa-microscope"></i> Analyze Plant Disease
+      </button>
+
+      <!-- Results Section -->
+      <div class="section-card" id="results-section" style="display: none;">
+        <div class="section-title"><i class="fas fa-chart-line"></i> Analysis Results</div>
+        <!-- Statistics -->
+        <div class="row mb-4">
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <h3 id="stat-user-symptoms">0</h3>
+              <p>User Symptoms</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <h3 id="stat-detected-symptoms">0</h3>
+              <p>Detected Symptoms</p>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="stat-card">
+              <h3 id="stat-total-symptoms">0</h3>
+              <p>Total Unique</p>
+            </div>
+          </div>
+        </div>
+        <!-- Detected Symptoms -->
+        <h5 class="fw-bold mb-3"><i class="fas fa-search"></i> Detected Symptoms from Image</h5>
+        <div class="result-box mb-4">
+          <div id="detected-symptoms-display">Awaiting analysis...</div>
+        </div>
+        <!-- Combined Symptoms -->
+        <h5 class="fw-bold mb-3"><i class="fas fa-layer-group"></i> Combined Symptoms Analysis</h5>
+        <div class="result-box mb-4">
+          <div id="combined-symptoms-display">Awaiting analysis...</div>
+        </div>
+        <!-- Disease Match Result -->
+        <h5 class="fw-bold mb-3"><i class="fas fa-stethoscope"></i> Disease Diagnosis</h5>
+        <div class="result-box" id="disease-result-box">
+          <div id="disease-result">Awaiting analysis...</div>
+        </div>
+        <div class="info-tip">
+          <i class="fas fa-info-circle"></i>
+          <strong>Note:</strong> This is a simulated diagnostic system. For accurate diagnosis, consult an agricultural expert or plant pathologist. Results as of October 01, 2025, 02:31 PM EAT.
+        </div>
+        <!-- Retrain Button -->
+        <button id="retrain-btn" class="btn-custom btn-primary-custom mt-3" style="display: none;">
+          <i class="fas fa-sync"></i> Retrain Model
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // DOM Elements
+    const video = document.getElementById('video');
+    const capturedImage = document.getElementById('captured-image');
+    const placeholderText = document.getElementById('placeholder-text');
+    const openCameraBtn = document.getElementById('open-camera-btn');
+    const captureBtn = document.getElementById('capture-btn');
+    const fileInput = document.getElementById('file-input');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const retrainBtn = document.getElementById('retrain-btn');
+    const plantTypeSelect = document.getElementById('plant-type');
+    const plantAgeInput = document.getElementById('plant-age');
+    const additionalNotesInput = document.getElementById('additional-notes');
+    const symptomCheckboxesContainer = document.getElementById('symptom-checkboxes');
+    const resultsSection = document.getElementById('results-section');
+    const detectedSymptomsDisplay = document.getElementById('detected-symptoms-display');
+    const combinedSymptomsDisplay = document.getElementById('combined-symptoms-display');
+    const diseaseResult = document.getElementById('disease-result');
+    const diseaseResultBox = document.getElementById('disease-result-box');
+    let currentStream = null;
+    let hasImage = false;
+    const backendUrl = 'http://localhost:8000'; // Update to deployed URL (e.g., https://your-app.onrender.com)
+
+    // Enhanced Disease Database (mapped to symptoms.json)
+    const DISEASE_DATABASE = [
+      { name: "Healthy", plantTypes: ["tomato", "rose", "cucumber", "potato", "pepper", "lettuce", "other"], symptoms: ["smooth"], description: "Healthy plant with no disease symptoms.", treatment: "Maintain good watering and nutrient practices." },
+      { name: "Powdery Mildew", plantTypes: ["rose", "cucumber", "tomato", "pepper", "lettuce"], symptoms: ["white powder", "leaf curling", "distorted leaves"], description: "Fungal disease with white powdery coating.", treatment: "Improve air circulation, apply sulfur sprays." },
+      { name: "Leaf Blight", plantTypes: ["tomato", "potato"], symptoms: ["brown lesions", "dry_cracked", "leaf wilting"], description: "Bacterial or fungal blight causing dry lesions.", treatment: "Remove infected leaves, use copper fungicides." },
+      { name: "Rust", plantTypes: ["rose", "cucumber"], symptoms: ["rusty_spots", "orange"], description: "Fungal rust causing orange spots.", treatment: "Apply fungicides, remove infected parts." },
+      { name: "Yellowing", plantTypes: ["tomato", "lettuce", "other"], symptoms: ["yellow", "wilted", "stunted growth"], description: "Nutrient deficiency or water stress.", treatment: "Apply nitrogen fertilizer, adjust irrigation." },
+      { name: "Downy Mildew", plantTypes: ["cucumber", "lettuce"], symptoms: ["grayish_white", "fuzzy"], description: "Fungal growth on leaf undersides.", treatment: "Use potassium bicarbonate, ensure good drainage." },
+      { name: "Anthracnose", plantTypes: ["tomato", "pepper"], symptoms: ["dark_brown", "sunken_spots"], description: "Fungal disease with sunken spots.", treatment: "Prune affected areas, apply fungicides." },
+      { name: "Bacterial Spot", plantTypes: ["tomato", "pepper"], symptoms: ["black", "water_soaked"], description: "Bacterial infection with dark spots.", treatment: "Use copper bactericides, avoid overhead watering." }
+    ];
+
+    // Symptoms from symptoms.json (for checkboxes)
+    const ALL_SYMPTOMS = [
+      "smooth", "white powder", "leaf curling", "distorted leaves", "brown lesions", "dry_cracked",
+      "rusty_spots", "orange", "yellow", "wilted", "grayish_white", "fuzzy", "dark_brown",
+      "sunken_spots", "black", "water_soaked"
+    ].sort();
+
+    // Initialize symptom checkboxes
+    function initializeSymptomCheckboxes() {
+      ALL_SYMPTOMS.forEach(symptom => {
+        const div = document.createElement('div');
+        div.className = 'col-md-6';
+        div.innerHTML = `
+          <div class="symptom-checkbox">
+            <input type="checkbox" id="symptom-${symptom.replace(/\s+/g, '-')}" value="${symptom}">
+            <label for="symptom-${symptom.replace(/\s+/g, '-')}">${symptom.charAt(0).toUpperCase() + symptom.slice(1)}</label>
+          </div>
+        `;
+        symptomCheckboxesContainer.appendChild(div);
+      });
+    }
+
+    // Check if analyze button should be enabled
+    function checkAnalyzeButton() {
+      const hasPlantType = plantTypeSelect.value !== '';
+      analyzeBtn.disabled = !(hasPlantType && hasImage);
+    }
+
+    // Camera Functions
+    async function startCamera() {
+      if (currentStream) {
+        stopCamera();
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        currentStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        capturedImage.style.display = 'none';
+        placeholderText.style.display = 'none';
+        captureBtn.disabled = false;
+        openCameraBtn.innerHTML = '<i class="fas fa-times"></i> Close Camera';
+      } catch (err) {
+        alert('Could not access camera. Please ensure permissions are granted.');
+        stopCamera();
+      }
+    }
+
+    function stopCamera() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+      }
+      video.style.display = 'none';
+      video.srcObject = null;
+      if (!hasImage) placeholderText.style.display = 'block';
+      captureBtn.disabled = true;
+      openCameraBtn.innerHTML = '<i class="fas fa-video"></i> Open Camera';
+    }
+
+    function captureImage() {
+      if (!currentStream) return;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      capturedImage.src = canvas.toDataURL('image/png');
+      capturedImage.style.display = 'block';
+      stopCamera();
+      hasImage = true;
+      checkAnalyzeButton();
+    }
+
+    fileInput.addEventListener('change', function(event) {
+      stopCamera();
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          capturedImage.src = e.target.result;
+          capturedImage.style.display = 'block';
+          placeholderText.style.display = 'none';
+          hasImage = true;
+          checkAnalyzeButton();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Get user-selected symptoms
+    function getUserSymptoms() {
+      const checkboxes = document.querySelectorAll('#symptom-checkboxes input[type="checkbox"]:checked');
+      return Array.from(checkboxes).map(cb => cb.value);
+    }
+
+    // Send image to backend for analysis
+    async function analyzeImage() {
+      const plantType = plantTypeSelect.value;
+      const userSymptoms = getUserSymptoms();
+      const plantAge = plantAgeInput.value;
+      const additionalNotes = additionalNotesInput.value;
+      if (!plantType) {
+        alert('Please select a plant type first!');
+        return;
+      }
+
+      resultsSection.style.display = 'block';
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      diseaseResultBox.classList.remove('success', 'danger');
+      diseaseResult.innerHTML = '<div class="text-center"><div class="loading-spinner"></div> Analyzing plant disease...</div>';
+      detectedSymptomsDisplay.innerHTML = '<div class="text-center"><div class="loading-spinner"></div> Extracting symptoms from image...</div>';
+      combinedSymptomsDisplay.innerHTML = '<div class="text-center">Processing...</div>';
+      analyzeBtn.disabled = true;
+      analyzeBtn.innerHTML = '<div class="loading-spinner"></div> Analyzing...';
+
+      const formData = new FormData();
+      const file = fileInput.files[0] || dataURLToFile(capturedImage.src, 'captured_image.png');
+      formData.append('file', file);
+      if (userSymptoms.length) formData.append('symptoms', JSON.stringify(userSymptoms));
+      if (plantAge) formData.append('plant_age', plantAge);
+      if (additionalNotes) formData.append('additional_notes', additionalNotes);
+
+      try {
+        const response = await fetch(`${backendUrl}/detect`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+
+        // Update statistics
+        document.getElementById('stat-user-symptoms').textContent = userSymptoms.length;
+        document.getElementById('stat-detected-symptoms').textContent = data.detected_symptoms ? data.detected_symptoms.length : 0;
+        document.getElementById('stat-total-symptoms').textContent = new Set([...userSymptoms, ...(data.detected_symptoms || [])]).size;
+
+        // Display detected symptoms (from backend)
+        displaySymptomBadges(data.detected_symptoms || [], 'detected-symptoms-display');
+
+        // Combine symptoms
+        const combinedSymptoms = [...new Set([...userSymptoms, ...(data.detected_symptoms || [])])];
+        displaySymptomBadges(combinedSymptoms, 'combined-symptoms-display');
+
+        // Find best match
+        const bestMatch = findBestDiseaseMatch(combinedSymptoms, plantType);
+        const accuracyThreshold = 50;
+
+        if (bestMatch.accuracy >= accuracyThreshold) {
+          diseaseResultBox.classList.add('success');
+          diseaseResult.innerHTML = `
+            <div class="text-center mb-3"><i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i></div>
+            <h4 class="text-success fw-bold text-center mb-3">Disease Identified!</h4>
+            <div class="disease-info">
+              <h5 class="fw-bold mb-2">${bestMatch.disease.name}</h5>
+              <div class="mb-3">
+                <label class="fw-bold d-block mb-2">Confidence Level:</label>
+                <div class="progress" style="height: 30px;">
+                  <div class="progress-bar progress-bar-custom bg-success" role="progressbar" style="width: ${bestMatch.accuracy}%" aria-valuenow="${bestMatch.accuracy}" aria-valuemin="0" aria-valuemax="100">${bestMatch.accuracy.toFixed(1)}%</div>
+                </div>
+              </div>
+              <p><strong>Description:</strong> ${bestMatch.disease.description}</p>
+              <p><strong>Recommended Treatment:</strong> ${bestMatch.disease.treatment}</p>
+              <p class="text-muted small mb-0"><i class="fas fa-info-circle"></i> Matched ${bestMatch.matchCount} out of ${bestMatch.totalSymptoms} known symptoms for this disease.</p>
+            </div>
+          `;
+          retrainBtn.style.display = 'block';
+        } else {
+          diseaseResultBox.classList.add('danger');
+          const alternativeText = bestMatch.accuracy > 0 ? `<p class="mb-2"><strong>Closest Match:</strong> ${bestMatch.disease.name} (${bestMatch.accuracy.toFixed(1)}% confidence)</p>` : '';
+          diseaseResult.innerHTML = `
+            <div class="text-center mb-3"><i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i></div>
+            <h4 class="text-danger fw-bold text-center mb-3">Unable to Identify Disease</h4>
+            ${alternativeText}
+            <p class="text-danger mb-2">Confidence level is below the ${accuracyThreshold}% threshold required for accurate diagnosis.</p>
+            <div class="info-tip mt-3">
+              <strong>Recommendations:</strong>
+              <ul class="mb-0 mt-2">
+                <li>Ensure the image clearly shows affected plant parts</li>
+                <li>Select all visible symptoms accurately</li>
+                <li>Consider consulting a local agricultural expert</li>
+                <li>Try capturing images of different affected areas</li>
+              </ul>
+            </div>
+          `;
+          retrainBtn.style.display = 'none';
+        }
+      } catch (error) {
+        diseaseResultBox.classList.add('danger');
+        diseaseResult.innerHTML = `
+          <div class="text-center mb-3"><i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i></div>
+          <h4 class="text-danger fw-bold text-center mb-3">Error in Analysis</h4>
+          <p class="text-danger mb-2">Failed to connect to the server. Please try again.</p>
+        `;
+        console.error(error);
+      } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<i class="fas fa-microscope"></i> Analyze Plant Disease';
+      }
+    }
+
+    // Find best disease match
+    function findBestDiseaseMatch(combinedSymptoms, plantType) {
+      if (combinedSymptoms.length === 0) return { name: "No Symptoms Detected", accuracy: 0 };
+      let relevantDiseases = DISEASE_DATABASE;
+      if (plantType && plantType !== 'other') {
+        relevantDiseases = DISEASE_DATABASE.filter(disease => disease.plantTypes.includes(plantType));
+      }
+      const matches = relevantDiseases.map(disease => {
+        const matchCount = combinedSymptoms.filter(symptom => disease.symptoms.includes(symptom)).length;
+        const uniqueSymptoms = new Set([...disease.symptoms, ...combinedSymptoms]);
+        const accuracy = (matchCount / uniqueSymptoms.size) * 100;
+        const plantBonus = disease.plantTypes.includes(plantType) ? 5 : 0;
+        return { disease, accuracy: Math.min(accuracy + plantBonus, 100), matchCount, totalSymptoms: disease.symptoms.length };
+      });
+      matches.sort((a, b) => b.accuracy - a.accuracy);
+      return matches[0] || { name: "None", accuracy: 0 };
+    }
+
+    // Display symptoms as badges
+    function displaySymptomBadges(symptoms, containerId) {
+      const container = document.getElementById(containerId);
+      if (!symptoms.length) {
+        container.innerHTML = '<p class="text-muted">No symptoms detected</p>';
+        return;
+      }
+      let html = '';
+      symptoms.forEach(symptom => {
+        html += `<span class="symptom-badge">${symptom.charAt(0).toUpperCase() + symptom.slice(1)}</span>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // Helper to convert dataURL to File
+    function dataURLToFile(dataURL, filename) {
+      const arr = dataURL.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) u8arr[n] = bstr.charCodeAt(n);
+      return new File([u8arr], filename, { type: mime });
+    }
+
+    // Retrain model
+    retrainBtn.addEventListener('click', async () => {
+      retrainBtn.disabled = true;
+      retrainBtn.innerHTML = '<div class="loading-spinner"></div> Retraining...';
+      try {
+        const response = await fetch(`${backendUrl}/retrain`, { method: 'POST' });
+        const data = await response.json();
+        alert(data.status);
+      } catch (error) {
+        alert('Error: Retraining failed. Please try again.');
+        console.error(error);
+      } finally {
+        retrainBtn.disabled = false;
+        retrainBtn.innerHTML = '<i class="fas fa-sync"></i> Retrain Model';
+      }
+    });
+
+    // Event Listeners
+    openCameraBtn.addEventListener('click', startCamera);
+    captureBtn.addEventListener('click', captureImage);
+    analyzeBtn.addEventListener('click', analyzeImage);
+    plantTypeSelect.addEventListener('change', checkAnalyzeButton);
+
+    // Initialize
+    initializeSymptomCheckboxes();
+    checkAnalyzeButton();
+  </script>
+</body>
+</html>
