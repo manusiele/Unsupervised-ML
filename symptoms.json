@@ -1,0 +1,4 @@
+{
+  "healthy": { "color": "green" },
+  "powdery_mildew": { "color": "white", "threshold": 100 }
+}
