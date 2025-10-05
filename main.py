@@ -1,5 +1,6 @@
 import os
 import json
+import base64
 import cv2
 import numpy as np
 from fastapi import FastAPI, UploadFile, Form, File
@@ -59,8 +60,8 @@ else:
     metadata = []
 
 # Preprocess image
-def preprocess_image(image):
-    img = cv2.imdecode(np.frombuffer(image, np.uint8), cv2.IMREAD_COLOR)
+def preprocess_image(image_bytes):
+    img = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
     img = cv2.resize(img, (128, 128))
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     return img, img_hsv
@@ -73,14 +74,16 @@ def detect_anomaly(model, image_tensor):
     return mse, reconstructed
 
 # Save image and metadata
-def save_image_and_metadata(filename, label, error, user_input=None, symptom_match=None):
+def save_image_and_metadata(filename, label, error, image_bytes, user_input=None, symptom_match=None):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     if error > 0.05:  # Threshold for diseased
         save_path = os.path.join(DATA_DIR, "diseased", filename)
     else:
         save_path = os.path.join(DATA_DIR, "healthy", filename)
+    
     with open(save_path, "wb") as f:
-        f.write(image_file.file.read())  # Reopen file to read
+        f.write(image_bytes)
+    
     metadata.append({
         "filename": filename,
         "label": label,
@@ -89,6 +92,7 @@ def save_image_and_metadata(filename, label, error, user_input=None, symptom_mat
         "user_input": user_input,
         "symptom_match": symptom_match
     })
+    
     with open(METADATA_FILE, "w") as f:
         json.dump(metadata, f, indent=2)
 
@@ -100,9 +104,9 @@ async def detect_disease(
     plant_age: str = Form(None),
     additional_notes: str = Form(None)
 ):
-    global image_file
-    image_file = file
-    img, img_hsv = preprocess_image(await file.read())
+    # Read image bytes once
+    image_bytes = await file.read()
+    img, img_hsv = preprocess_image(image_bytes)
 
     # Convert to tensor
     img_tensor = torch.from_numpy(img.transpose((2, 0, 1))).float().unsqueeze(0).to(device) / 255.0
@@ -123,12 +127,16 @@ async def detect_disease(
     label = "Healthy" if error < 0.05 else f"Diseased (Possible {symptom_match})" if symptom_match else "Diseased (Unknown)"
     user_symptoms = json.loads(symptoms) if symptoms else []
 
+    # Generate filename with timestamp
+    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"{file.filename.split('.')[0]}_{timestamp_str}.jpg"
+    
     # Save image and metadata
-    filename = f"{file.filename.split('.')[0]}_{timestamp.replace(':', '-')}.jpg"
-    save_image_and_metadata(filename, label, error, user_symptoms, symptom_match)
+    save_image_and_metadata(filename, label, error, image_bytes, user_symptoms, symptom_match)
 
     # Generate anomaly map (simplified)
-    anomaly_map = cv2.absdiff(img, (reconstructed.cpu().squeeze(0).numpy().transpose((1, 2, 0)) * 255).astype(np.uint8))
+    reconstructed_img = (reconstructed.cpu().squeeze(0).numpy().transpose((1, 2, 0)) * 255).astype(np.uint8)
+    anomaly_map = cv2.absdiff(img, reconstructed_img)
     _, anomaly_map = cv2.threshold(anomaly_map, 30, 255, cv2.THRESH_BINARY)
     _, buffer = cv2.imencode('.jpg', anomaly_map)
     anomaly_map_base64 = "data:image/jpeg;base64," + base64.b64encode(buffer).decode()
@@ -145,9 +153,14 @@ async def retrain_model():
     # Load all images for retraining (simplified)
     images = []
     for folder in ["healthy", "diseased"]:
-        for filename in os.listdir(os.path.join(DATA_DIR, folder)):
-            img_path = os.path.join(DATA_DIR, folder, filename)
+        folder_path = os.path.join(DATA_DIR, folder)
+        if not os.path.exists(folder_path):
+            continue
+        for filename in os.listdir(folder_path):
+            img_path = os.path.join(folder_path, filename)
             img = cv2.imread(img_path)
+            if img is None:
+                continue
             img = cv2.resize(img, (128, 128))
             img_tensor = torch.from_numpy(img.transpose((2, 0, 1))).float().unsqueeze(0).to(device) / 255.0
             images.append(img_tensor)
@@ -165,8 +178,11 @@ async def retrain_model():
                 optimizer.step()
         torch.save(model.state_dict(), "model.pth")
         model.eval()
-
-    return JSONResponse({"status": "Retraining completed at 2025-10-01 14:31"})
+        
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+        return JSONResponse({"status": f"Retraining completed at {timestamp}"})
+    else:
+        return JSONResponse({"status": "No images found for retraining"})
 
 if __name__ == "__main__":
     import uvicorn
