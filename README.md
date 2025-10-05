@@ -17,7 +17,7 @@ symptoms.json file for symptom guidance (e.g., {"healthy": {"color": "green"}, "
 
 Installation
 
-Clone the repository:git clone https://github.com/your-username/crop-disease-app.git
+Clone the repository:git clone https://github.com/manusiele/crop-disease-app.git
 cd crop-disease-app
 
 
