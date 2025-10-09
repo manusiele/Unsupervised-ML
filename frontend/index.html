@@ -366,7 +366,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // DOM Elements
-    const video = document.getElementById('video');
+  const video = document.getElementById('video');
     const capturedImage = document.getElementById('captured-image');
     const placeholderText = document.getElementById('placeholder-text');
     const openCameraBtn = document.getElementById('open-camera-btn');
@@ -385,7 +385,7 @@
     const diseaseResultBox = document.getElementById('disease-result-box');
     let currentStream = null;
     let hasImage = false;
-    const backendUrl = 'http://0.0.0.0:8000'; // Update to deployed URL (e.g., https://your-app.onrender.com)
+    const backendUrl = 'http://localhost:8000';
 
     // Enhanced Disease Database (mapped to symptoms.json)
     const DISEASE_DATABASE = [
