@@ -1,0 +1,65 @@
+[
+  {
+    "filename": "download_2025-10-09_19-39-15.jpg",
+    "label": "Diseased (Unknown)",
+    "error": 0.07841978967189789,
+    "timestamp": "2025-10-09 19:39",
+    "user_input": [
+      "dark_brown",
+      "leaf curling"
+    ],
+    "symptom_match": null
+  },
+  {
+    "filename": "download_2025-10-09_19-40-03.jpg",
+    "label": "Diseased (Unknown)",
+    "error": 0.07841978967189789,
+    "timestamp": "2025-10-09 19:40",
+    "user_input": [
+      "grayish_white"
+    ],
+    "symptom_match": null
+  },
+  {
+    "filename": "download_2025-10-09_19-44-14.jpg",
+    "label": "Diseased (Unknown)",
+    "error": 0.07841978967189789,
+    "timestamp": "2025-10-09 19:44",
+    "user_input": [
+      "black",
+      "rusty_spots"
+    ],
+    "symptom_match": null
+  },
+  {
+    "filename": "download_2025-10-09_19-50-51.jpg",
+    "label": "Diseased (Unknown)",
+    "error": 0.07841978967189789,
+    "timestamp": "2025-10-09 19:50",
+    "user_input": [
+      "dark_brown",
+      "orange"
+    ],
+    "symptom_match": null
+  },
+  {
+    "filename": "download_2025-10-09_19-51-18.jpg",
+    "label": "Diseased (Unknown)",
+    "error": 0.07841978967189789,
+    "timestamp": "2025-10-09 19:51",
+    "user_input": [
+      "water_soaked"
+    ],
+    "symptom_match": null
+  },
+  {
+    "filename": "download_2025-10-09_20-09-03.jpg",
+    "label": "Diseased (Unknown)",
+    "error": 0.07841978967189789,
+    "timestamp": "2025-10-09 20:09",
+    "user_input": [
+      "grayish_white"
+    ],
+    "symptom_match": null
+  }
+]

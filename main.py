@@ -36,9 +36,17 @@ class Autoencoder(nn.Module):
 model = Autoencoder()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)
-if os.path.exists("model.pth"):
-    model.load_state_dict(torch.load("model.pth"))
-    model.eval()
+model_path = "model.pth"
+if os.path.exists(model_path):
+    try:
+        model.load_state_dict(torch.load(model_path))
+        model.eval()
+        print(f"Loaded model from {model_path}")
+    except Exception as e:
+        print(f"Error loading model from {model_path}: {e}")
+        print("Proceeding with a fresh model")
+else:
+    print(f"No model found at {model_path}. Proceeding with a fresh model")
 
 # Load symptoms.json
 with open("symptoms.json", "r") as f:
@@ -186,4 +194,4 @@ async def retrain_model():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
