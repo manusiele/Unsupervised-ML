@@ -354,10 +354,10 @@
         </div>
         <div class="info-tip">
           <i class="fas fa-info-circle"></i>
-          <strong>Note:</strong> This is a simulated diagnostic system. For accurate diagnosis, consult an agricultural expert or plant pathologist. Results as of October 09, 2025, 07:40 PM EAT.
+          <strong>Note:</strong> This is a diagnostic system powered by unsupervised machine learning. For accurate diagnosis, consult an agricultural expert or plant pathologist.
         </div>
         <!-- Retrain Button -->
-        <button id="retrain-btn" class="btn-custom btn-primary-custom mt-3" style="display: none;">
+        <button id="retrain-btn" class="btn-custom btn-primary-custom mt-3">
           <i class="fas fa-sync"></i> Retrain Model
         </button>
       </div>
@@ -385,9 +385,11 @@
     const diseaseResultBox = document.getElementById('disease-result-box');
     let currentStream = null;
     let hasImage = false;
-    const backendUrl = 'http://localhost:8000';
+    
+    // NO HARDCODED URL - Uses relative paths (same origin, no CORS!)
+    const API_BASE = '/api';
 
-    // Enhanced Disease Database (mapped to symptoms.json)
+    // Enhanced Disease Database
     const DISEASE_DATABASE = [
       { name: "Healthy", plantTypes: ["tomato", "rose", "cucumber", "potato", "pepper", "lettuce", "other"], symptoms: ["smooth"], description: "Healthy plant with no disease symptoms.", treatment: "Maintain good watering and nutrient practices." },
       { name: "Powdery Mildew", plantTypes: ["rose", "cucumber", "tomato", "pepper", "lettuce"], symptoms: ["white powder", "leaf curling", "distorted leaves"], description: "Fungal disease with white powdery coating.", treatment: "Improve air circulation, apply sulfur sprays." },
@@ -399,11 +401,11 @@
       { name: "Bacterial Spot", plantTypes: ["tomato", "pepper"], symptoms: ["black", "water_soaked"], description: "Bacterial infection with dark spots.", treatment: "Use copper bactericides, avoid overhead watering." }
     ];
 
-    // Symptoms from symptoms.json (for checkboxes)
+    // Symptoms from symptoms.json
     const ALL_SYMPTOMS = [
       "smooth", "white powder", "leaf curling", "distorted leaves", "brown lesions", "dry_cracked",
       "rusty_spots", "orange", "yellow", "wilted", "grayish_white", "fuzzy", "dark_brown",
-      "sunken_spots", "black", "water_soaked"
+      "sunken_spots", "black", "water_soaked", "leaf wilting", "stunted growth"
     ].sort();
 
     // Initialize symptom checkboxes
@@ -504,6 +506,7 @@
       const userSymptoms = getUserSymptoms();
       const plantAge = plantAgeInput.value;
       const additionalNotes = additionalNotesInput.value;
+      
       if (!plantType) {
         alert('Please select a plant type.');
         return;
@@ -527,13 +530,17 @@
       if (additionalNotes) formData.append('additional_notes', additionalNotes);
 
       try {
-        const response = await fetch(`${backendUrl}/detect`, {
+        // Using relative URL - no CORS issues!
+        const response = await fetch(`${API_BASE}/detect`, {
           method: 'POST',
           body: formData
         });
+        
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text();
+          throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
+        
         const data = await response.json();
 
         // Update statistics
@@ -551,10 +558,13 @@
         // Find best match
         const bestMatch = findBestDiseaseMatch(combinedSymptoms, plantType);
         const accuracyThreshold = 50;
+        const isHealthy = data.error < 0.05;
 
-        if (data.label.includes('Healthy') || bestMatch.accuracy >= accuracyThreshold) {
+        if (isHealthy || bestMatch.accuracy >= accuracyThreshold) {
           diseaseResultBox.classList.add('success');
-          const diseaseName = data.label.includes('Healthy') ? 'Healthy' : bestMatch.disease.name;
+          const diseaseName = isHealthy ? 'Healthy' : bestMatch.disease.name;
+          const confidence = isHealthy ? 100 : bestMatch.accuracy;
+          
           diseaseResult.innerHTML = `
             <div class="text-center mb-3"><i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i></div>
             <h4 class="text-success fw-bold text-center mb-3">Diagnosis: ${diseaseName}</h4>
@@ -563,16 +573,16 @@
               <div class="mb-3">
                 <label class="fw-bold d-block mb-2">Confidence Level:</label>
                 <div class="progress" style="height: 30px;">
-                  <div class="progress-bar progress-bar-custom bg-success" role="progressbar" style="width: ${data.error < 0.05 ? 100 : bestMatch.accuracy}%" aria-valuenow="${data.error < 0.05 ? 100 : bestMatch.accuracy}" aria-valuemin="0" aria-valuemax="100">${(data.error < 0.05 ? 100 : bestMatch.accuracy).toFixed(1)}%</div>
+                  <div class="progress-bar progress-bar-custom bg-success" role="progressbar" style="width: ${confidence}%" aria-valuenow="${confidence}" aria-valuemin="0" aria-valuemax="100">${confidence.toFixed(1)}%</div>
                 </div>
               </div>
-              <p><strong>Description:</strong> ${data.label.includes('Healthy') ? 'Healthy plant with no disease symptoms.' : bestMatch.disease.description}</p>
-              <p><strong>Recommended Treatment:</strong> ${data.label.includes('Healthy') ? 'Maintain good watering and nutrient practices.' : bestMatch.disease.treatment}</p>
-              <p><strong>Anomaly Map:</strong> <img src="${data.anomaly_map}" alt="Anomaly Map" style="max-width: 100%; border-radius: 8px; margin-top: 10px;"></p>
-              <p class="text-muted small mb-0"><i class="fas fa-info-circle"></i> Matched ${bestMatch.matchCount} out of ${bestMatch.totalSymptoms} known symptoms for this disease.</p>
+              <p><strong>Description:</strong> ${isHealthy ? 'Healthy plant with no disease symptoms.' : bestMatch.disease.description}</p>
+              <p><strong>Recommended Treatment:</strong> ${isHealthy ? 'Maintain good watering and nutrient practices.' : bestMatch.disease.treatment}</p>
+              <p><strong>Model Error Score:</strong> ${(data.error * 100).toFixed(2)}%</p>
+              ${data.anomaly_map ? `<p><strong>Anomaly Map:</strong><br><img src="${data.anomaly_map}" alt="Anomaly Map" style="max-width: 100%; border-radius: 8px; margin-top: 10px;"></p>` : ''}
+              ${!isHealthy ? `<p class="text-muted small mb-0"><i class="fas fa-info-circle"></i> Matched ${bestMatch.matchCount} out of ${bestMatch.totalSymptoms} known symptoms for this disease.</p>` : ''}
             </div>
           `;
-          retrainBtn.style.display = 'block';
         } else {
           diseaseResultBox.classList.add('danger');
           const alternativeText = bestMatch.accuracy > 0 ? `<p class="mb-2"><strong>Closest Match:</strong> ${bestMatch.disease.name} (${bestMatch.accuracy.toFixed(1)}% confidence)</p>` : '';
@@ -581,7 +591,8 @@
             <h4 class="text-danger fw-bold text-center mb-3">Unable to Identify Disease</h4>
             ${alternativeText}
             <p class="text-danger mb-2">Confidence level is below the ${accuracyThreshold}% threshold required for accurate diagnosis.</p>
-            <p><strong>Anomaly Map:</strong> <img src="${data.anomaly_map}" alt="Anomaly Map" style="max-width: 100%; border-radius: 8px; margin-top: 10px;"></p>
+            <p><strong>Model Error Score:</strong> ${(data.error * 100).toFixed(2)}%</p>
+            ${data.anomaly_map ? `<p><strong>Anomaly Map:</strong><br><img src="${data.anomaly_map}" alt="Anomaly Map" style="max-width: 100%; border-radius: 8px; margin-top: 10px;"></p>` : ''}
             <div class="info-tip mt-3">
               <strong>Recommendations:</strong>
               <ul class="mb-0 mt-2">
@@ -592,14 +603,22 @@
               </ul>
             </div>
           `;
-          retrainBtn.style.display = 'none';
         }
       } catch (error) {
         diseaseResultBox.classList.add('danger');
         diseaseResult.innerHTML = `
-          <div class="text-center mb-3"><i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i></div>
+          <div class="text-center mb-3"><i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i></div>
           <h4 class="text-danger fw-bold text-center mb-3">Error in Analysis</h4>
-          <p class="text-danger mb-2">Failed to connect to the server: ${error.message}. Please ensure the server is running at ${backendUrl}.</p>
+          <p class="text-danger mb-2">Failed to connect to the server: ${error.message}</p>
+          <div class="info-tip mt-3">
+            <strong>Troubleshooting:</strong>
+            <ul class="mb-0 mt-2">
+              <li>Ensure the FastAPI server is running (python main.py)</li>
+              <li>Check that the server is accessible at the correct port</li>
+              <li>Verify all required dependencies are installed</li>
+              <li>Check the browser console for more details</li>
+            </ul>
+          </div>
         `;
         console.error('Analysis error:', error);
       } finally {
@@ -610,18 +629,28 @@
 
     // Find best disease match
     function findBestDiseaseMatch(combinedSymptoms, plantType) {
-      if (combinedSymptoms.length === 0) return { disease: { name: "No Symptoms Detected", description: "", treatment: "", symptoms: [] }, accuracy: 0, matchCount: 0, totalSymptoms: 0 };
+      if (combinedSymptoms.length === 0) {
+        return { disease: { name: "No Symptoms Detected", description: "", treatment: "", symptoms: [] }, accuracy: 0, matchCount: 0, totalSymptoms: 0 };
+      }
+      
       let relevantDiseases = DISEASE_DATABASE;
       if (plantType && plantType !== 'other') {
         relevantDiseases = DISEASE_DATABASE.filter(disease => disease.plantTypes.includes(plantType));
       }
+      
       const matches = relevantDiseases.map(disease => {
         const matchCount = combinedSymptoms.filter(symptom => disease.symptoms.includes(symptom)).length;
         const uniqueSymptoms = new Set([...disease.symptoms, ...combinedSymptoms]);
         const accuracy = (matchCount / uniqueSymptoms.size) * 100;
         const plantBonus = disease.plantTypes.includes(plantType) ? 5 : 0;
-        return { disease, accuracy: Math.min(accuracy + plantBonus, 100), matchCount, totalSymptoms: disease.symptoms.length };
+        return { 
+          disease, 
+          accuracy: Math.min(accuracy + plantBonus, 100), 
+          matchCount, 
+          totalSymptoms: disease.symptoms.length 
+        };
       });
+      
       matches.sort((a, b) => b.accuracy - a.accuracy);
       return matches[0] || { disease: { name: "None", description: "", treatment: "", symptoms: [] }, accuracy: 0, matchCount: 0, totalSymptoms: 0 };
     }
@@ -653,17 +682,27 @@
 
     // Retrain model
     async function retrainModel() {
+      if (!confirm('This will retrain the model using all stored images. This may take a few minutes. Continue?')) {
+        return;
+      }
+      
       retrainBtn.disabled = true;
       retrainBtn.innerHTML = '<div class="loading-spinner"></div> Retraining...';
+      
       try {
-        const response = await fetch(`${backendUrl}/retrain`, { method: 'POST' });
+        const response = await fetch(`${API_BASE}/retrain`, { 
+          method: 'POST' 
+        });
+        
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+          const errorText = await response.text();
+          throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
+        
         const data = await response.json();
-        alert(`Success: ${data.status}`);
+        alert(`Success: ${data.status}\nImages used: ${data.images_used || 'unknown'}`);
       } catch (error) {
-        alert(`Error: Retraining failed - ${error.message}. Please ensure the server is running at ${backendUrl}.`);
+        alert(`Error: Retraining failed - ${error.message}`);
         console.error('Retraining error:', error);
       } finally {
         retrainBtn.disabled = false;
@@ -681,6 +720,16 @@
     // Initialize
     initializeSymptomCheckboxes();
     checkAnalyzeButton();
+    
+    // Check server health on load
+    fetch(`${API_BASE}/health`)
+      .then(response => response.json())
+      .then(data => {
+        console.log('✅ Server connected successfully:', data);
+      })
+      .catch(error => {
+        console.warn('⚠️ Server not responding. Please ensure FastAPI is running.');
+      });
   </script>
 </body>
 </html>
