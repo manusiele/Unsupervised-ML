@@ -1,15 +1,59 @@
-# Ignore Python cache files
+# Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Ignore Jupyter Notebook checkpoints
-.ipynb_checkpoints/
+# PyTorch
+*.pth
+*.pt
+*.ckpt
 
-# Ignore system files
+# Data
+kaggle-dataset/
+dataset/
+*.csv
+*.json.bak
+metadata.json
+
+# IDE
+.kiro/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Ignore log files
+# Logs
 *.log
-logs
+
+# Environment
+.env
+.env.local
+
+# Temporary files
+*.tmp
+*.temp

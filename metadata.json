@@ -1,65 +1,107 @@
 [
   {
-    "filename": "download_2025-10-09_19-39-15.jpg",
-    "label": "Diseased (Unknown)",
-    "error": 0.07841978967189789,
-    "timestamp": "2025-10-09 19:39",
-    "user_input": [
-      "dark_brown",
-      "leaf curling"
-    ],
-    "symptom_match": null
+    "filename": "images.jpg",
+    "disease": "Tomato Early blight",
+    "confidence": 0.87,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T09:12:46.809715"
   },
   {
-    "filename": "download_2025-10-09_19-40-03.jpg",
-    "label": "Diseased (Unknown)",
-    "error": 0.07841978967189789,
-    "timestamp": "2025-10-09 19:40",
-    "user_input": [
-      "grayish_white"
-    ],
-    "symptom_match": null
+    "filename": "sick-spots-are-stained-corn-leaves-on-an-agricultural-field-T39609.jpg",
+    "disease": "Tomato Early blight",
+    "confidence": 0.87,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T09:14:16.248262"
   },
   {
-    "filename": "download_2025-10-09_19-44-14.jpg",
-    "label": "Diseased (Unknown)",
-    "error": 0.07841978967189789,
-    "timestamp": "2025-10-09 19:44",
-    "user_input": [
-      "black",
-      "rusty_spots"
-    ],
-    "symptom_match": null
+    "filename": "sick-spots-are-stained-corn-leaves-on-an-agricultural-field-T39609.jpg",
+    "disease": "Corn Late blight",
+    "confidence": 0.88,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T09:23:36.168822"
   },
   {
-    "filename": "download_2025-10-09_19-50-51.jpg",
-    "label": "Diseased (Unknown)",
-    "error": 0.07841978967189789,
-    "timestamp": "2025-10-09 19:50",
-    "user_input": [
-      "dark_brown",
-      "orange"
-    ],
-    "symptom_match": null
+    "filename": "download (1).jpg",
+    "disease": "Corn Late blight",
+    "confidence": 0.88,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T09:28:18.990407"
   },
   {
-    "filename": "download_2025-10-09_19-51-18.jpg",
-    "label": "Diseased (Unknown)",
-    "error": 0.07841978967189789,
-    "timestamp": "2025-10-09 19:51",
-    "user_input": [
-      "water_soaked"
-    ],
-    "symptom_match": null
+    "filename": "sick-spots-are-stained-corn-leaves-on-an-agricultural-field-T39609.jpg",
+    "disease": "Corn Late blight",
+    "confidence": 0.88,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T09:28:33.793294"
   },
   {
-    "filename": "download_2025-10-09_20-09-03.jpg",
-    "label": "Diseased (Unknown)",
-    "error": 0.07841978967189789,
-    "timestamp": "2025-10-09 20:09",
-    "user_input": [
-      "grayish_white"
-    ],
-    "symptom_match": null
+    "filename": "images.jpg",
+    "disease": "Corn Early blight",
+    "confidence": 0.75,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T09:28:47.376166"
+  },
+  {
+    "filename": "apple.jpg",
+    "disease": "Corn Late blight",
+    "confidence": 0.88,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T09:38:46.139401"
+  },
+  {
+    "filename": "apple.jpg",
+    "disease": "Corn Late blight",
+    "confidence": 0.88,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T10:22:51.193028"
+  },
+  {
+    "filename": "apple.jpg",
+    "disease": "Apple scab",
+    "confidence": 0.12,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T11:10:38.672021"
+  },
+  {
+    "filename": "download.jpg",
+    "disease": "Common rust ",
+    "confidence": 0.43,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T11:10:53.974952"
+  },
+  {
+    "filename": "sick-spots-are-stained-corn-leaves-on-an-agricultural-field-T39609.jpg",
+    "disease": "Common rust ",
+    "confidence": 0.31,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T12:45:51.475138"
+  },
+  {
+    "filename": "apple.jpg",
+    "disease": "Apple scab",
+    "confidence": 0.12,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T12:46:33.372208"
+  },
+  {
+    "filename": "images.jpg",
+    "disease": "Cercospora leaf spot Gray leaf spot",
+    "confidence": 0.22974358974358974,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T12:46:48.522276"
+  },
+  {
+    "filename": "download.jpg",
+    "disease": "Common rust ",
+    "confidence": 0.43,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T12:52:57.842745"
+  },
+  {
+    "filename": "download (1).jpg",
+    "disease": "healthy",
+    "confidence": 0.25,
+    "error": 0.0523,
+    "timestamp": "2025-11-17T12:56:20.929230"
   }
 ]
